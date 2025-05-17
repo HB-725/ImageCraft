@@ -3,12 +3,24 @@ import UploadForm from './components/UploadForm';
 import AspectSelector from './components/AspectSelector';
 import PromptInput from './components/PromptInput';
 import GenerateSection from './components/GenerateSection';
+import LoginForm from './components/LoginForm';
+
 
 function App() {
+
+
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
+
   const [image, setImage]             = useState(null);  // preview URL
   const [file, setFile]               = useState(null);  // raw File object
   const [aspectRatio, setAspectRatio] = useState('16:9');
   const [prompt, setPrompt]           = useState('');
+
+  
+  // if not logged in, show only the login form
+  if (!token) {
+    return <LoginForm onLogin={t => setToken(t)} />;
+  }
 
   return (
     <div className="container py-5">

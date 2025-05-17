@@ -1,6 +1,6 @@
 import React from 'react';
 
-const OPTIONS = ['16:9', '4:5', '1:1', '9:16'];
+const OPTIONS = ['1:1', '4:5', '16:9', '9:16'];
 
 const AspectSelector = ({ aspectRatio, setAspectRatio }) => (
   <div className="mb-4">
