@@ -1,0 +1,31 @@
+.prompt-input {
+    margin-bottom: 20px;
+  }
+  
+  .prompt-input label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .prompt-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;       /* hide scrollbar */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .prompt-textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  }
+  
+  .prompt-textarea::placeholder {
+    color: #aaa;
+  }
+  

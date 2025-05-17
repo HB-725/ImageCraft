@@ -1,17 +1,27 @@
 import React from 'react';
 
-const AspectSelector = ({ setAspectRatio }) => {
-  return (
-    <div className="aspect-selector">
-      <label>Select Aspect Ratio:</label>
-      <select onChange={(e) => setAspectRatio(e.target.value)}>
-        <option value="16:9">16:9</option>
-        <option value="4:5">4:5</option>
-        <option value="1:1">1:1</option>
-        <option value="9:16">9:16</option>
-      </select>
+const OPTIONS = ['16:9', '4:5', '1:1', '9:16'];
+
+const AspectSelector = ({ aspectRatio, setAspectRatio }) => (
+  <div className="mb-4">
+    <label className="form-label fw-semibold">Select Aspect Ratio:</label>
+    <div className="btn-group w-100" role="group">
+      {OPTIONS.map(opt => (
+        <button
+          key={opt}
+          type="button"
+          className={
+            aspectRatio === opt
+              ? 'btn btn-primary'
+              : 'btn btn-outline-primary'
+          }
+          onClick={() => setAspectRatio(opt)}
+        >
+          {opt}
+        </button>
+      ))}
     </div>
-  );
-};
+  </div>
+);
 
 export default AspectSelector;
