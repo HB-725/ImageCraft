@@ -9,7 +9,6 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-# ─── Authenticate Replicate ───────────────────────────────────────────────
 replicate.api_token = settings.REPLICATE_API_TOKEN
 
 
@@ -17,11 +16,7 @@ class GenerateImageView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None):
-        # 1) Log incoming
-        print("🔍 FILES:", request.FILES)
-        print("🔍 DATA:", request.data)
 
-        # 2) Validate
         image_file   = request.FILES.get("image")
         prompt       = request.data.get("prompt")
         aspect_ratio = request.data.get("aspectRatio")
@@ -31,21 +26,21 @@ class GenerateImageView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # 3) Wrap the uploaded file in BytesIO
+        # Wrap the uploaded file in BytesIO
         raw = image_file.read()
         img_stream = io.BytesIO(raw)
 
-        # 4) Prepare Replicate inputs
+        # Replicate inputs
         model_name = "black-forest-labs/flux-dev"
         replicate_input = {
             "prompt": prompt,
             "guidance": 5.0,
-            "image": img_stream,          # file-like
-            "aspect_ratio": aspect_ratio, # if the model accepts this
+            "image": img_stream,          
+            "aspect_ratio": aspect_ratio, 
             "output_format": "jpg"
         }
 
-        # 5) Run the model
+        # Run the model
         try:
             output_files = replicate.run(model_name, input=replicate_input)
         except Exception as e:
@@ -54,7 +49,7 @@ class GenerateImageView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        # 6) Read the first output’s bytes and base64‑encode
+        # Read the first output’s bytes and base64‑encode
         try:
             jpg_bytes = output_files[0].read()
             b64 = base64.b64encode(jpg_bytes).decode("utf-8")
@@ -64,7 +59,7 @@ class GenerateImageView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        # 7) Return JSON with base64‑jpeg
+        # Return JSON with base64‑jpeg
         return Response(
             {"imageData": b64},
             status=status.HTTP_200_OK
