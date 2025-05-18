@@ -1,13 +1,12 @@
 // src/components/UploadForm.jsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const UploadForm = ({ image, setImage, file, setFile }) => {
+const UploadForm = ({ image, setImage }) => {
   const [dragActive, setDragActive] = useState(false);
 
   // central file handler
-  const handleFileObject = (file) => {
-    setFile(file);
-    setImage(URL.createObjectURL(file));
+  const handleFileObject = (image) => {
+    setImage(URL.createObjectURL(image));
   };
 
   // when dropped
@@ -24,7 +23,7 @@ const UploadForm = ({ image, setImage, file, setFile }) => {
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else {
       setDragActive(false);
@@ -33,7 +32,7 @@ const UploadForm = ({ image, setImage, file, setFile }) => {
 
   // open file picker
   const openFile = () => {
-    document.getElementById('fileInput').click();
+    document.getElementById("fileInput").click();
   };
 
   // picker change
@@ -48,8 +47,10 @@ const UploadForm = ({ image, setImage, file, setFile }) => {
       {!image ? (
         /* drag‑drop box */
         <div
-          className={`border rounded p-5 text-center ${dragActive ? 'bg-light' : ''}`}
-          style={{ cursor: 'pointer' }}
+          className={`border rounded p-5 text-center ${
+            dragActive ? "bg-light" : ""
+          }`}
+          style={{ cursor: "pointer" }}
           onClick={openFile}
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
@@ -71,7 +72,7 @@ const UploadForm = ({ image, setImage, file, setFile }) => {
         </div>
       ) : (
         /* preview + click‑to‑replace */
-        <div onClick={openFile} style={{ cursor: 'pointer' }}>
+        <div onClick={openFile} style={{ cursor: "pointer" }}>
           <input
             id="fileInput"
             type="file"
@@ -79,16 +80,16 @@ const UploadForm = ({ image, setImage, file, setFile }) => {
             onChange={handleFileChange}
             className="d-none"
           />
-            <img
+          <img
             src={image}
             alt="Uploaded"
             className="img-fluid rounded mx-auto d-block"
             style={{
-                maxHeight: '200px',     // or '50vh'
-                width: 'auto',
-                objectFit: 'cover',
+              maxHeight: "200px", // or '50vh'
+              width: "auto",
+              objectFit: "cover",
             }}
-            />
+          />
 
           <p className="text-center small text-muted mt-2">
             Click image to replace
