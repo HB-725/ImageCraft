@@ -1,12 +1,13 @@
 // src/components/UploadForm.jsx
 import React, { useState } from "react";
 
-const UploadForm = ({ image, setImage }) => {
+const UploadForm = ({ image, setImage, setFile }) => {
   const [dragActive, setDragActive] = useState(false);
 
   // central file handler
   const handleFileObject = (image) => {
     setImage(URL.createObjectURL(image));
+    setFile(image); // Store the raw file for backend upload
   };
 
   // when dropped

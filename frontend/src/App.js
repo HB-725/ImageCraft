@@ -7,7 +7,7 @@ import LoginForm from "./components/LoginForm";
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
-
+  const [file, setFile] = useState(null); // raw file for backend upload
   const [image, setImage] = useState(null); // user uploaded image URL
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [prompt, setPrompt] = useState("");
@@ -22,7 +22,7 @@ function App() {
       <h1 className="mb-4">ImageCraft Platform</h1>
 
       {/* pass setFile here alongside setImage */}
-      <UploadForm image={image} setImage={setImage} />
+      <UploadForm image={image} setImage={setImage} setFile={setFile} />
 
       <AspectSelector
         aspectRatio={aspectRatio}
@@ -31,11 +31,7 @@ function App() {
 
       <PromptInput prompt={prompt} setPrompt={setPrompt} />
 
-      <GenerateSection
-        image={image}
-        aspectRatio={aspectRatio}
-        prompt={prompt}
-      />
+      <GenerateSection file={file} aspectRatio={aspectRatio} prompt={prompt} />
     </div>
   );
 }

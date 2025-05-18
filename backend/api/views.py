@@ -1,47 +1,71 @@
-import openai
+# api/views.py
+
+import io
+import base64
+import replicate
 from django.conf import settings
 from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-# ——— Login ———
-class LoginView(APIView):
-    def post(self, request):
-        serializer = TokenObtainPairSerializer(data=request.data)
-        if serializer.is_valid():
-            return Response({'token': serializer.validated_data['access']})
-        return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+# ─── Authenticate Replicate ───────────────────────────────────────────────
+replicate.api_token = settings.REPLICATE_API_TOKEN
 
-# ——— Generate ———
+
 class GenerateImageView(APIView):
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
-        image_file   = request.FILES.get('image')
-        prompt       = request.data.get('prompt')
-        aspect_ratio = request.data.get('aspectRatio')
+        # 1) Log incoming
+        print("🔍 FILES:", request.FILES)
+        print("🔍 DATA:", request.data)
 
+        # 2) Validate
+        image_file   = request.FILES.get("image")
+        prompt       = request.data.get("prompt")
+        aspect_ratio = request.data.get("aspectRatio")
         if not image_file or not prompt:
             return Response(
-                {'detail': 'Missing image or prompt.'},
+                {"detail": "Missing image or prompt."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        openai.api_key = settings.OPENAI_API_KEY
+        # 3) Wrap the uploaded file in BytesIO
+        raw = image_file.read()
+        img_stream = io.BytesIO(raw)
+
+        # 4) Prepare Replicate inputs
+        model_name = "black-forest-labs/flux-dev"
+        replicate_input = {
+            "prompt": prompt,
+            "guidance": 5.0,
+            "image": img_stream,          # file-like
+            "aspect_ratio": aspect_ratio, # if the model accepts this
+            "output_format": "jpg"
+        }
+
+        # 5) Run the model
         try:
-            response = openai.Image.create_variation(
-                image=image_file,
-                n=1,
-                size="1024x1024"
-            )
-            url = response['data'][0]['url']
-            return Response({'imageUrl': url})
+            output_files = replicate.run(model_name, input=replicate_input)
         except Exception as e:
             return Response(
-                {'detail': 'Generation failed', 'error': str(e)},
+                {"detail": "Replicate API error", "error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+        # 6) Read the first output’s bytes and base64‑encode
+        try:
+            jpg_bytes = output_files[0].read()
+            b64 = base64.b64encode(jpg_bytes).decode("utf-8")
+        except Exception as e:
+            return Response(
+                {"detail": "Output processing error", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # 7) Return JSON with base64‑jpeg
+        return Response(
+            {"imageData": b64},
+            status=status.HTTP_200_OK
+        )
